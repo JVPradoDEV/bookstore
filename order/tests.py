@@ -3,6 +3,10 @@ from order.models.order import Order
 from order.factories import OrderFactory, UserFactory
 from order.serializers.order_serializer import OrderSerializer
 from product.factories import ProductFactory
+from django.urls import reverse
+from rest_framework.test import APIClient
+from rest_framework import status
+
 
 @pytest.mark.django_db
 def test_user_creation():
@@ -41,3 +45,16 @@ def test_order_serializer_calculates_total():
     
     assert serializer.data['total'] == 350
     assert len(serializer.data['product']) == 2
+
+@pytest.mark.django_db
+def test_order_viewset():
+    client = APIClient()
+    product = ProductFactory(title="Caneta", price=10)
+    order = OrderFactory(product=(product,))
+    
+    url = reverse('order-list', kwargs={'version': 'v1'})
+    response = client.get(url)
+    
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data) == 1
+    assert response.data[0]['total'] == 10
