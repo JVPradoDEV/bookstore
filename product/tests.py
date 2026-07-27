@@ -1,4 +1,5 @@
 import pytest
+import json
 from rest_framework import status
 from product.models.product import Product
 from product.models.category import Category
@@ -6,6 +7,8 @@ from product.factories import ProductFactory, CategoryFactory
 from product.serializers.product_serializer import ProductSerializer
 from rest_framework.test import APIClient
 from django.urls import reverse
+from order.factories import UserFactory
+from rest_framework.authtoken.models import Token
 
 @pytest.mark.django_db
 def test_category_creation():
@@ -55,20 +58,50 @@ def test_category_viewset():
     url = reverse('category-list', kwargs={'version': 'v1'}) 
     response = client.get(url)
     
-    assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) == 1
-    assert response.data[0]['title'] == "Livros"
+    response_data = response.json()
+    assert len(response_data['results']) == 1
+    assert response_data['results'][0]['title'] == "Livros"
 
 @pytest.mark.django_db
 def test_product_viewset():
     client = APIClient()
+    user = UserFactory()
+    token = Token.objects.create(user=user)
+    client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
+    
     product = ProductFactory(title="Clean Code", price=120)
     
     url = reverse('product-list', kwargs={'version': 'v1'})
     response = client.get(url)
     
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) == 1
-    assert response.data[0]['title'] == "Clean Code"
+    
+    response_data = response.json()
+    assert response_data['results'][0]['title'] == product.title
+    assert response_data['results'][0]['price'] == float(product.price)
+    assert response_data['results'][0]['active'] == product.active
+
+@pytest.mark.django_db
+def test_create_product():
+    client = APIClient()
+    user = UserFactory()
+    token = Token.objects.create(user=user)
+    client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
+    
+    category = CategoryFactory()
+    data = {
+        'title': 'notebook',
+        'price': 800.00,
+        'categories_id': [category.id],
+        'description': 'teste',
+        'active': True,
+    }
+    
+    url = reverse('product-list', kwargs={'version': 'v1'})
+    
+    response = client.post(url, data=json.dumps(data), content_type='application/json')
+    print(response.json())
+    
+    assert response.status_code == status.HTTP_201_CREATED
 
 # Create your tests here.
