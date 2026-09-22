@@ -130,7 +130,7 @@ USE_TZ = True
 USE_L1ON = True
 
 
-# Static files (CSS, JavaScript, Images)
+## Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = "static/"
@@ -151,4 +151,4 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "chave-secreta-padrao")
 
 DEBUG = int(os.environ.get("DEBUG", "1"))
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'jvpradodev.pythonanywhere.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'jvpradodev.pythonanywhere.com', 'bookstore-ebac-j4a6.onrender.com']
