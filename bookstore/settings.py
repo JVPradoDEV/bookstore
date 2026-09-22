@@ -152,3 +152,5 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "chave-secreta-padrao")
 DEBUG = int(os.environ.get("DEBUG", "1"))
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'jvpradodev.pythonanywhere.com', 'bookstore-ebac-j4a6.onrender.com']
+
+CSRF_TRUSTED_ORIGINS = ['https://bookstore-ebac-j4a6.onrender.com']
